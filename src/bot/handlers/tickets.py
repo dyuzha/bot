@@ -33,7 +33,6 @@ async def select_type(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data == "incident", StateFilter(BaseStates.complete_autorisation))
-@with_back_button
 async def process_incident(callback: CallbackQuery, state: FSMContext):
     logger.debug(f"Call process_incident")
     await state.set_state(TicketStates.incident_type)
@@ -46,7 +45,7 @@ async def process_incident(callback: CallbackQuery, state: FSMContext):
 
 # Обработка выбора "Запрос"
 @router.callback_query(F.data == "request", StateFilter(BaseStates.complete_autorisation))
-@with_back_button
+# @with_back_button
 async def process_request(callback: CallbackQuery, state: FSMContext):
     logger.debug(f"Call process_request")
     await state.set_state(TicketStates.request_type)
@@ -58,7 +57,7 @@ async def process_request(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "cancel")
-@with_back_button
+# @with_back_button
 async def cancel_creation(callback: CallbackQuery, state: FSMContext):
     logger.debug("Call cancel_creation")
     """Отмена создания заявки"""

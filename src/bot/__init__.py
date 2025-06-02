@@ -19,12 +19,16 @@ bot = Bot(token=TELEGRAM_TOKEN, default=DefaultBotProperties(
 
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
-dp.include_router(deffault_router)
-dp.include_router(tickets_router)
 
 # Регистрируем middlewares
+# dp.update.outer_middleware(NavigationMiddleware())
 dp.message.middleware(NavigationMiddleware())
 dp.callback_query.middleware(NavigationMiddleware())
+
+dp.include_router(deffault_router)
+dp.include_router(tickets_router)
+dp.include_router(navigation_router)
+
 
 # Регистрируем обработчики
 from .handlers import *

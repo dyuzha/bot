@@ -30,8 +30,7 @@ def incident_types_kb():
     builder.button(text="💻 Проблемы с работой 1С", callback_data="inc_1c")
     builder.button(text="🖥️ Проблема с оборудованием или ПО", callback_data="inc_it")
     builder.button(text=CANCEL_KEY, callback_data="cancel")
-    builder.button(text=BACK_KEY, callback_data="back")
-    builder.adjust(1, 2)
+    builder.button(text=BACK_KEY, callback_data="navigation_back")
     return builder.as_markup()
 
 def request_types_kb():
@@ -39,7 +38,7 @@ def request_types_kb():
     builder.button(text="🔧 Запрос по 1С", callback_data="req_1c")
     builder.button(text="👨‍💻 Запрос прав доступа", callback_data="req_it")
     builder.button(text=CANCEL_KEY, callback_data="cancel")
-    builder.button(text=BACK_KEY, callback_data="back")
+    builder.button(text=BACK_KEY, callback_data="navigation_back")
     builder.adjust(1, 2)
     return builder.as_markup()
 
@@ -49,7 +48,7 @@ def incident_1c_kb():
     builder.button(text="🖥️ Проблема с оборудованием или ПО", callback_data="inc_hardware")
     builder.button(text="🌐 Проблема с сетью", callback_data="inc_network")
     builder.button(text=CANCEL_KEY, callback_data="cancel")
-    builder.button(text=BACK_KEY, callback_data="cancel")
+    builder.button(text=BACK_KEY, callback_data="navigation_back")
     builder.adjust(1, 2)
     return builder.as_markup()
 
@@ -59,6 +58,6 @@ def incident_it_kb():
     builder.button(text="👨‍💻 Запрос прав доступа", callback_data="req_access")
     builder.button(text="📊 Запрос отчетов", callback_data="req_reports")
     builder.button(text=CANCEL_KEY, callback_data="cancel")
-    builder.button(text=BACK_KEY, callback_data="cancel")
+    builder.button(text=BACK_KEY, callback_data="navigation_back")
     builder.adjust(1, 2)
     return builder.as_markup()
