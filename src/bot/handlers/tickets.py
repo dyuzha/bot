@@ -8,7 +8,6 @@ from bot.handlers.deffault import BaseStates
 from bot.states import TicketStates
 from bot.text import *
 from bot.keyboards import incident_types_kb, request_types_kb
-from bot.handlers.funcs import with_back_button
 from bot.utils import push_to_stack
 
 logger = logging.getLogger(__name__)

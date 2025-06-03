@@ -15,5 +15,11 @@ class TicketStates(StatesGroup):
     incident_type = State()
     request_type = State()
 
+
 class OneCStates(StatesGroup):
     select_category = State()
+
+
+class UniversalStates(StatesGroup):
+    title = State()
+    description = State()
