@@ -1,8 +1,7 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.filters import StateFilter
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup
 from aiogram.fsm.context import FSMContext
-from bot.states import NavigationState
-from bot.keyboards import back_button
 import logging
 
 router = Router()
@@ -16,7 +15,7 @@ async def back_handler(callback: CallbackQuery, state: FSMContext):
     navigation_data = user_data.get('navigation_data', {})
 
     stack = navigation_data.get('stack', [])
-    logger.debug(f"navigation_data: {navigation_data}")
+    # logger.debug(f"navigation_data: {navigation_data}")
     if not navigation_data.get('stack'):
         await callback.answer("История пуста")
         return
@@ -31,13 +30,23 @@ async def back_handler(callback: CallbackQuery, state: FSMContext):
     # Устанавливаем предыдущее состояние
     previous_state = stack[-1]
     await state.set_state(previous_state["state"])
-    logger.debug(f"previous_state: {previous_state}")
+    # logger.debug(f"previous_state: {previous_state}")
+
+    keyboard_data = previous_state.get("keyboard")
+    keyboard = None
+
+    if keyboard_data:
+        try:
+            keyboard = InlineKeyboardMarkup.model_validate(keyboard_data)
+        except Exception:
+            keyboard = None
+
 
     await callback.message.edit_text(
         previous_state['message'],
-        reply_markup=back_button()
+        reply_markup=keyboard
     )
-    logger.debug(f"Back to: {previous_state['state']}")
+    # logger.debug(f"Back to: {previous_state['state']}")
 
     await state.update_data(navigation_data={"stack": stack})
     await callback.answer()

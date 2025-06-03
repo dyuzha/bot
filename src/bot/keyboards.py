@@ -9,8 +9,10 @@ def main_kb():
             [KeyboardButton(text="Создать заявку")],
             # [KeyboardButton(text="Мои заявки")]
         ],
-        resize_keyboard=True
+        resize_keyboard=True,
+        one_time_keyboard=True
     )
+
 
 def back_button(extra_buttons: list = None):
     builder = InlineKeyboardBuilder()
@@ -24,29 +26,32 @@ def back_button(extra_buttons: list = None):
     return builder.as_markup()
 
 
-
 def incident_types_kb():
     builder = InlineKeyboardBuilder()
     builder.button(text="💻 Проблемы с работой 1С", callback_data="inc_1c")
     builder.button(text="🖥️ Проблема с оборудованием или ПО", callback_data="inc_it")
     builder.button(text=CANCEL_KEY, callback_data="cancel")
     builder.button(text=BACK_KEY, callback_data="navigation_back")
+    builder.adjust(1, 2)
     return builder.as_markup()
+
 
 def request_types_kb():
     builder = InlineKeyboardBuilder()
     builder.button(text="🔧 Запрос по 1С", callback_data="req_1c")
-    builder.button(text="👨‍💻 Запрос прав доступа", callback_data="req_it")
+    builder.button(text="👨‍💻 Запросы по сопровождению", callback_data="req_it")
     builder.button(text=CANCEL_KEY, callback_data="cancel")
     builder.button(text=BACK_KEY, callback_data="navigation_back")
     builder.adjust(1, 2)
     return builder.as_markup()
 
+
 def incident_1c_kb():
     builder = InlineKeyboardBuilder()
-    builder.button(text="Ошибка лиценщирования", callback_data="inc_1c")
-    builder.button(text="🖥️ Проблема с оборудованием или ПО", callback_data="inc_hardware")
-    builder.button(text="🌐 Проблема с сетью", callback_data="inc_network")
+    builder.button(text="Ошибка лицензирование", callback_data="lic")
+    builder.button(text="Ошибка обмена данных", callback_data="obmen")
+    builder.button(text="Ошибка запуска", callback_data="init")
+    builder.button(text="Ошибка при проведении/записи", callback_data="inc_network")
     builder.button(text=CANCEL_KEY, callback_data="cancel")
     builder.button(text=BACK_KEY, callback_data="navigation_back")
     builder.adjust(1, 2)

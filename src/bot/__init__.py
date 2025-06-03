@@ -9,6 +9,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from bot.handlers.deffault import router as deffault_router
 from bot.handlers.tickets import router as tickets_router
 from bot.handlers.navigation import router as navigation_router
+from bot.handlers.universal import router as universal_router
+from bot.handlers.one_c_handlers import router as one_c_router
 from bot.middlewares.navigation import NavigationMiddleware
 
 
@@ -22,12 +24,15 @@ dp = Dispatcher(storage=storage)
 
 # Регистрируем middlewares
 # dp.update.outer_middleware(NavigationMiddleware())
-dp.message.middleware(NavigationMiddleware())
-dp.callback_query.middleware(NavigationMiddleware())
+# tickets_router.message.outer_middleware(NavigationMiddleware())
+tickets_router.callback_query.outer_middleware(NavigationMiddleware())
 
+
+dp.include_router(universal_router)
+dp.include_router(navigation_router)
 dp.include_router(deffault_router)
 dp.include_router(tickets_router)
-dp.include_router(navigation_router)
+dp.include_router(one_c_router)
 
 
 # Регистрируем обработчики

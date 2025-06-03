@@ -10,10 +10,10 @@ class BaseStates(StatesGroup):
 
 
 class TicketStates(StatesGroup):
+    select_type = State()
     type = State()
     incident_type = State()
     request_type = State()
 
-class NavigationState(StatesGroup):
-    previous_state = State()
-    previous_message = State()
+class OneCStates(StatesGroup):
+    select_category = State()
