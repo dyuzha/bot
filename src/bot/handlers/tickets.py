@@ -5,7 +5,7 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram import Router
 from bot.handlers.deffault import BaseStates
-from bot.handlers.utils import add_step, deffault_handle, register_step
+from bot.handlers.utils import add_step, default_handle, register_step
 from bot.states import TicketStates
 from bot.text import *
 from bot.keyboards import incident_types_kb, request_types_kb
@@ -31,46 +31,26 @@ async def init_create_ticket(message: Message, state: FSMContext):
     prompt = SELECT_WILL_TYPE_TICKET
     keyboard = type_kb
 
-    await state.set_state(TicketStates.have_type)
+    await state.set_state(TicketStates.create_ticket)
     await add_step(state, prompt=prompt, keyboard=keyboard)
     await message.answer(prompt, reply_markup=keyboard)
 
 
-async def process_type(callback: CallbackQuery, state: FSMContext):
-    logger.debug(f"Call process_type")
-    prompt = SELECT_WILL_TYPE_TICKET
-    keyboard = type_kb
-
-    await add_step(state, prompt=prompt, keyboard=keyboard)
-    await state.set_state(TicketStates.have_type)
-    await callback.message.edit_text(prompt, reply_markup=keyboard)
-
-
-# Обработка выбора "Инцидент"
-@router.callback_query(F.data == "incident", StateFilter(TicketStates.have_type))
+@router.callback_query(F.data == "incident", StateFilter(TicketStates.create_ticket))
 async def process_incident(callback: CallbackQuery, state: FSMContext):
     logger.debug(f"Call process_incident")
 
     prompt = "🛠 Выберите тип инцидента:"
     keyboard = incident_types_kb()
 
-    await add_step(state, prompt=prompt, keyboard=keyboard)
-    await state.set_state(TicketStates.have_incident_type)
-
-    await callback.message.edit_text(prompt, reply_markup=keyboard)
-    await callback.answer()
+    await default_handle(callback, state, prompt, keyboard)
 
 
-# Обработка выбора "Запрос"
-@router.callback_query(F.data == "request", StateFilter(TicketStates.have_type))
+@router.callback_query(F.data == "request", StateFilter(TicketStates.create_ticket))
 async def process_request(callback: CallbackQuery, state: FSMContext):
     logger.debug(f"Call process_request")
 
     prompt = "📝 Выберите тип запроса:"
     keyboard = request_types_kb()
 
-    await add_step(state, prompt=prompt, keyboard=keyboard)
-    await state.set_state(TicketStates.have_request_type)
-
-    await callback.message.edit_text(prompt, reply_markup=keyboard)
-    await callback.answer()
+    await default_handle(callback, state, prompt, keyboard)

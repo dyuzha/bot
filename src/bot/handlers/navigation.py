@@ -15,7 +15,7 @@ async def back_handler(callback: CallbackQuery, state: FSMContext):
     navigation_data = user_data.get('navigation_data', {})
 
     stack = navigation_data.get('stack', [])
-    # logger.debug(f"navigation_data: {navigation_data}")
+
     if not navigation_data.get('stack'):
         await callback.answer("История пуста")
         return
@@ -30,7 +30,7 @@ async def back_handler(callback: CallbackQuery, state: FSMContext):
     # Устанавливаем предыдущее состояние
     previous_state = stack[-1]
     await state.set_state(previous_state["state"])
-    # logger.debug(f"previous_state: {previous_state}")
+    logger.debug(f"previous_state: {previous_state["state"]}")
 
     keyboard_data = previous_state.get("keyboard")
     keyboard = None
@@ -46,7 +46,7 @@ async def back_handler(callback: CallbackQuery, state: FSMContext):
         previous_state['message'],
         reply_markup=keyboard
     )
-    # logger.debug(f"Back to: {previous_state['state']}")
+    logger.debug(f"Back to: {previous_state["state"]}")
 
     await state.update_data(navigation_data={"stack": stack})
     await callback.answer()

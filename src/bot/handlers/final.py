@@ -7,7 +7,7 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram import Router
 from bot.handlers.deffault import BaseStates
-from bot.states import UniversalStates
+from bot.states import FinalStates
 from bot.text import *
 from bot.keyboards import incident_types_kb, request_types_kb
 from bot.handlers.utils import push_to_stack
@@ -18,7 +18,7 @@ router = Router()
 
 
 # Обработка ввода описания
-@router.callback_query(StateFilter(UniversalStates.description))
+@router.callback_query(StateFilter(FinalStates.description))
 async def process_description(message: Message , state: FSMContext):
     logger.debug(f"Call process_description")
     description = message.text

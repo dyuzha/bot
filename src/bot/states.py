@@ -8,20 +8,13 @@ class BaseStates(StatesGroup):
     waiting_autorisation = State()
     complete_autorisation = State()
 
-
 class TicketStates(StatesGroup):
-    have_type = State()
-    type = State()
-    have_incident_type = State()
-    have_request_type = State()
-
+    create_ticket = State()
 
 class OneCStates(StatesGroup):
-    process_category = State()
-    have_category = State()
+    inc_1c = State()
 
-
-
-class UniversalStates(StatesGroup):
-    title = State()
+class FinalStates(StatesGroup):
     description = State()
+    title = State()
+    confirm = State()

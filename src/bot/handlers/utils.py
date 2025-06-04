@@ -6,9 +6,27 @@ from aiogram.fsm.context import FSMContext
 from bot.keyboards import back_button
 from functools import wraps
 from typing import Callable, Optional, Awaitable, Any
+import logging
+import asyncio
+
+
+logger = logging.getLogger(__name__)
+
+
+async def flash_message(message: Message, text: str, delay: int = 3):
+    """
+    Отправляет временное сообщение пользователю и удаляет его через delay секунд.
+    """
+    flash = await message.answer(text)
+    await asyncio.sleep(delay)
+    try:
+        await flash.delete()
+    except Exception:
+        pass  # Сообщение уже удалено или не может быть удалено
 
 
 async def add_step(state: FSMContext, prompt: str, keyboard=None):
+    logger.debug(f"Call add_step")
     navigation_data = (await state.get_data()).get("navigation_data", {"stack": []})
     stack = navigation_data.get("stack", [])
 
@@ -21,13 +39,16 @@ async def add_step(state: FSMContext, prompt: str, keyboard=None):
     if len(stack) > 10:
         stack = stack[-10:]
 
+    logger.debug(f"stack_states: {[step["state"] for step in stack]}")
     navigation_data["stack"] = stack
     await state.update_data(navigation_data=navigation_data)
 
-async def deffault_handle(callback: CallbackQuery, state: FSMContext, next_state: State,
-                 prompt: str, keyboard: InlineKeyboardMarkup):
+
+async def default_handle(callback: CallbackQuery, state: FSMContext, prompt: str,
+        keyboard: InlineKeyboardMarkup, next_state: Optional[State] = None):
     await add_step(state=state, prompt=prompt, keyboard=keyboard)
-    await state.set_state(next_state)
+    if next_state:
+        await state.set_state(next_state)
     await callback.message.edit_text(prompt, reply_markup=keyboard)
     await callback.answer()
 
