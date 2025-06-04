@@ -1,3 +1,6 @@
 logs
 __pycache__
 logs/bot.log
+src/bot/__pycache__
+src/bot/handlers/__pycache__
+src/bot/middlewares/__pycache__
