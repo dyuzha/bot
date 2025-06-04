@@ -10,14 +10,16 @@ class BaseStates(StatesGroup):
 
 
 class TicketStates(StatesGroup):
-    select_type = State()
+    have_type = State()
     type = State()
-    incident_type = State()
-    request_type = State()
+    have_incident_type = State()
+    have_request_type = State()
 
 
 class OneCStates(StatesGroup):
-    select_category = State()
+    process_category = State()
+    have_category = State()
+
 
 
 class UniversalStates(StatesGroup):

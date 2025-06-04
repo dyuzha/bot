@@ -2,7 +2,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardBut
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.text import BACK_KEY, CANCEL_KEY
 
-base_buttons = [
+base_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text=BACK_KEY, callback_data="navigation_back"),
     InlineKeyboardButton(text=CANCEL_KEY, callback_data="cancel")
 ]
@@ -31,6 +31,15 @@ def back_button(extra_buttons: list = None):
     return builder.as_markup()
 
 
+def build_menu_keyboard(items: list[dict]) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for item in items:
+        builder.button(text=item["text"], callback_data=item["callback"])
+    builder.adjust(1)
+    builder.row(*base_buttons)
+    return builder.as_markup()
+
+
 def incident_types_kb():
     builder = InlineKeyboardBuilder()
     builder.button(text="💻 Проблемы с работой 1С", callback_data="inc_1c")
@@ -47,25 +56,3 @@ def request_types_kb():
     builder.adjust(1)
     builder.row(*base_buttons)
     return builder.as_markup()
-
-
-# def incident_1c_kb():
-#     builder = InlineKeyboardBuilder()
-#     builder.button(text="Ошибка лицензирование", callback_data="lic")
-#     builder.button(text="Ошибка обмена данных", callback_data="obmen")
-#     builder.button(text="Ошибка запуска", callback_data="init")
-#     builder.button(text="Ошибка при проведении/записи", callback_data="inc_network")
-#     builder.button(text=CANCEL_KEY, callback_data="cancel")
-#     builder.button(text=BACK_KEY, callback_data="navigation_back")
-#     builder.adjust(1, 2)
-#     return builder.as_markup()
-#
-# def incident_it_kb():
-#     builder = InlineKeyboardBuilder()
-#     builder.button(text="🔧 Запрос по 1С", callback_data="req_1c")
-#     builder.button(text="👨‍💻 Запрос прав доступа", callback_data="req_access")
-#     builder.button(text="📊 Запрос отчетов", callback_data="req_reports")
-#     builder.button(text=CANCEL_KEY, callback_data="cancel")
-#     builder.button(text=BACK_KEY, callback_data="navigation_back")
-#     builder.adjust(1, 2)
-#     return builder.as_markup()

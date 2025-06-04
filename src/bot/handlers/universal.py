@@ -32,5 +32,3 @@ async def cancel_creation(callback: CallbackQuery, state: FSMContext):
         reply_markup=main_kb()
     )
     await callback.answer()
-
-

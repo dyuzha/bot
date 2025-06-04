@@ -1,125 +1,104 @@
+# bot/handlers/one_c_handlers.py
+
 import logging
-from typing import Callable, Dict
 from aiogram import F, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State
+from bot.handlers.models.fork_maker import BaseForkMaker
+from bot.handlers.tickets import add_step
 from bot.states import OneCStates, TicketStates, UniversalStates
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-from bot.keyboards import base_buttons, incident_types_kb
-from bot.utils import push_to_stack
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+from bot.keyboards import base_buttons
+from bot.handlers.utils import deffault_handle
 
 
 logger = logging.getLogger(__name__)
 router = Router()
+fork_maker = BaseForkMaker(base_buttons=base_buttons)
 
 
-def build_menu_keyboard(items: list[dict]) -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-    for item in items:
-        builder.button(text=item["text"], callback_data=item["callback"])
-    builder.adjust(1)
-    builder.row(*base_buttons)
-    return builder.as_markup()
-
-
-def generate_menu_items(callback_handlers: Dict[str, dict]) -> list[dict]:
-    return [
-        {"text": data["text"], "callback": name}
-        for name, data in callback_handlers.items()
-    ]
-
-
-class Collector:
-    def __init__(self):
-        self._handlers: Dict[str, dict] = {}
-
-    def register_callback(self, name: str, text: str = "Нет подписи"):
-        def decorator(func: Callable):
-            self._handlers[name] = {
-                "handler": func,
-                "text": text
-            }
-            return func
-        return decorator
-
-    async def __call__(self, callback: CallbackQuery, state: FSMContext):
-        handler = self._handlers.get(callback.data)
-        if not handler:
-            return
-        await handler["handler"](callback, state)
-
-    # def build_menu_keyboard(self) -> InlineKeyboardMarkup:
-    #     builder = InlineKeyboardBuilder()
-    #
-    #     for item in self._generate_menu_items():
-    #         builder.button(text=item["text"], callback_data=item["callback"])
-    #     builder.adjust(1)
-    #     builder.row(*base_buttons)
-    #     return builder.as_markup()
-
-
-    def build_keyboard(self) -> InlineKeyboardMarkup:
-        builder = InlineKeyboardBuilder()
-
-        for name, item in self._handlers.items():
-            builder.button(text=item["text"], callback_data=name)
-
-        builder.adjust(1)
-
-        builder.row(*base_buttons)
-        return builder.as_markup()
-
-
-    def _generate_menu_items(self) -> list[dict]:
-        return [
-            {"text": data["text"], "callback": name}
-            for name, data in self._handlers.items()
-        ]
-
-
-req_1c_collector = Collector()
-
-# router.callback_query(StateFilter(OneCStates.select_category))(
-#     req_1c_collector)
-
-@router.callback_query(StateFilter(OneCStates.select_category))
+@router.callback_query(StateFilter(OneCStates.process_category))
 async def callback_dispatcher(callback: CallbackQuery, state: FSMContext):
-    await req_1c_collector(callback, state)
+    logger.debug("Call callback_dispatcher")
+    next_state = OneCStates.have_category
+
+    await fork_maker(callback, state)
+    await state.set_state(next_state)
 
 
-async def handle(callback: CallbackQuery, state: FSMContext, next_state: State,
-                 prompt: str, keyboard: InlineKeyboardMarkup):
-    await push_to_stack(state, prompt, keyboard=keyboard)
+@router.callback_query(F.data == "inc_1c", StateFilter(TicketStates.have_incident_type))
+async def select_category(callback: CallbackQuery, state: FSMContext):
+    logger.debug("Call select_category")
+
+    prompt = "Выберите вашу проблему"
+    keyboard = fork_maker.build_keyboard()
+    next_state = OneCStates.process_category
+
+    await add_step(state=state, prompt=prompt, keyboard=keyboard)
     await state.set_state(next_state)
     await callback.message.edit_text(prompt, reply_markup=keyboard)
-    await callback.answer()
 
 
-@router.callback_query(F.data == "inc_1c", StateFilter(TicketStates.incident_type))
-async def select_category(callback: CallbackQuery, state: FSMContext):
-    prompt = "Выберите вашу проблему"
-    keyboard = req_1c_collector.build_keyboard()
-    next_state = OneCStates.select_category
-    await handle(callback, state, next_state, prompt, keyboard)
-
-
-@req_1c_collector.register_callback(name="lic", text="Проблема с лицензией")
+@fork_maker.register_callback(name="lic", text="Проблема с лицензией")
 async def lic_handler(callback: CallbackQuery, state: FSMContext):
-    prompt="Проблема с лицензией"
-    keyboard = incident_types_kb()
+    await state.set_state()
+    prompt="Напишите подробное описание"
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[base_buttons])
     next_state = UniversalStates.description
-    await handle(callback, state, next_state, prompt, keyboard)
+    await deffault_handle(callback, state, next_state, prompt, keyboard)
 
 
-@req_1c_collector.register_callback(name="obmen", text="Проблема с обменом")
+@fork_maker.register_callback(name="obmen", text="Проблема с обменом")
 async def obmen_handler_(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("Проблема с обменом__")
-    await callback.answer()
+    prompt="Напишите подробное описание"
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[base_buttons])
+    next_state = UniversalStates.description
+    await deffault_handle(callback, state, next_state, prompt, keyboard)
 
 
-@req_1c_collector.register_callback(name="new", text="nwe с обменом")
+@fork_maker.register_callback(name="new", text="nwe с обменом")
 async def obmen_handler(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("ff с обменом__")
-    await callback.answer()
+    prompt="Напишите подробное описание"
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[base_buttons])
+    next_state = UniversalStates.description
+    await deffault_handle(callback, state, next_state, prompt, keyboard)
+
+
+# Обработка ввода описания
+@router.message(StateFilter(UniversalStates.description))
+async def process_description(message: Message , state: FSMContext):
+    logger.debug(f"Call process_description")
+
+    # переход к следующему состоянию
+    description = message.text.strip()
+
+    if len(description) <= 10:
+        await message.answer(
+            "Введенное описание слишком короткое. Пожалуйста, напишите подробнее (не менее 10 символов)."
+        )
+        return
+
+    # Сохраняем описание в состояние
+    await state.update_data(description=description)
+
+    # Удаляем сообщение пользователя (по желанию)
+    try:
+        await message.delete()
+    except Exception:
+        pass
+
+    # Достаём предыдущее сообщение бота из стека и редактируем его
+    data = await state.get_data()
+    stack = data.get("navigation_data", {}).get("stack", [])
+    if stack:
+        last_bot_msg = stack[-1]
+        msg_text = f"{last_bot_msg['message']}\n\n✏️ Описание: {description}"
+        await message.bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=message.message_id - 1,  # предполагаем, что сообщение бота — предыдущее
+            text=msg_text,
+            reply_markup=last_bot_msg["keyboard"]
+        )
+
+    # Переход к следующему шагу
+    await state.set_state(OneCStates.process_category)
