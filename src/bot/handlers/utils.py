@@ -30,11 +30,18 @@ async def add_step(state: FSMContext, prompt: str, keyboard=None):
     navigation_data = (await state.get_data()).get("navigation_data", {"stack": []})
     stack = navigation_data.get("stack", [])
 
-    stack.append({
+    current_data = ({
         "state": await state.get_state(),
         "message": prompt,
         "keyboard": keyboard.model_dump() if keyboard else None,
+        # "message_id": message.message_id  # <-- вот тут
     })
+
+    if stack and stack[-1] == current_data:
+        logger.debug(f"Skip duplicate state")
+        return
+
+    stack.append(current_data)
 
     if len(stack) > 10:
         stack = stack[-10:]

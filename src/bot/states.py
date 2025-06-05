@@ -9,7 +9,10 @@ class BaseStates(StatesGroup):
     complete_autorisation = State()
 
 class TicketStates(StatesGroup):
-    create_ticket = State()
+    type = State()
+    category = State()
+    incident = State()
+    request = State()
 
 class OneCStates(StatesGroup):
     inc_1c = State()

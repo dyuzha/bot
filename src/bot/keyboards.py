@@ -19,6 +19,14 @@ def main_kb():
     )
 
 
+def confirm_kb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Подтвердить", callback_data="confirm")
+    builder.adjust(1)
+    builder.row(*base_buttons)
+    return builder.as_markup()
+
+
 def back_button(extra_buttons: list = None):
     builder = InlineKeyboardBuilder()
 

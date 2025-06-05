@@ -31,12 +31,13 @@ async def init_create_ticket(message: Message, state: FSMContext):
     prompt = SELECT_WILL_TYPE_TICKET
     keyboard = type_kb
 
-    await state.set_state(TicketStates.create_ticket)
+    await state.set_state(TicketStates.type)
     await add_step(state, prompt=prompt, keyboard=keyboard)
-    await message.answer(prompt, reply_markup=keyboard)
+    sent_msg = await message.answer(prompt, reply_markup=keyboard)
+    await state.update_data(bot_message_id=sent_msg.message_id)
 
 
-@router.callback_query(F.data == "incident", StateFilter(TicketStates.create_ticket))
+@router.callback_query(F.data == "incident", StateFilter(TicketStates.type))
 async def process_incident(callback: CallbackQuery, state: FSMContext):
     logger.debug(f"Call process_incident")
 
@@ -46,7 +47,7 @@ async def process_incident(callback: CallbackQuery, state: FSMContext):
     await default_handle(callback, state, prompt, keyboard)
 
 
-@router.callback_query(F.data == "request", StateFilter(TicketStates.create_ticket))
+@router.callback_query(F.data == "request", StateFilter(TicketStates.type))
 async def process_request(callback: CallbackQuery, state: FSMContext):
     logger.debug(f"Call process_request")
 

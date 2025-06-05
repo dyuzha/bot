@@ -4,6 +4,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardMarkup
 from aiogram.fsm.context import FSMContext
 import logging
 
+
 router = Router()
 logger = logging.getLogger(__name__)
 
@@ -30,10 +31,14 @@ async def back_handler(callback: CallbackQuery, state: FSMContext):
     # Устанавливаем предыдущее состояние
     previous_state = stack[-1]
     await state.set_state(previous_state["state"])
-    logger.debug(f"previous_state: {previous_state["state"]}")
 
     keyboard_data = previous_state.get("keyboard")
     keyboard = None
+    logger.debug(
+            f"previous: <state: {previous_state["state"]}>"
+            # f"keyboard: {previous_state["keyboard"]}, "
+            # f"message: {previous_state["message"]}>"
+    )
 
     if keyboard_data:
         try:
